@@ -1,0 +1,32 @@
+dt: 0.01
+geofence: [1.5, 2.0, 2.0, -1.0, -3.0, -0.5] # [x_max, y_max, z_max, x_min, y_min, z_min]
+origin: [0.0, 0.0, 0.22] # [x, y, z]
+takeoff_duration: 10.0
+landing_duration: 8.0
+
+return_home_pos: [0.0, 0.0, 1.25] # [x, y, z]
+return_home_quat: [0.0, 0.0, 0.0, 1.0] # [x, y, z, w]
+
+send_vel: true
+send_thrust: true
+send_arm: false
+
+mpc: 
+  mass: 1.0
+  T: 2.0
+  N: 50
+  Q: [12, 12, 12, 0.05, 0.05, 0.05]
+  R: [0.008, 0.008, 0.008]
+  acc2thrust_gain: [0.1, 0.12, 0.1]
+  pos_min: [-1.0, -2.0, -2.0]
+  pos_max: [2.0, 2.0, 2.0]
+  vel_min: [-1.0, -1.0, -1.0]
+  vel_max: [1.0, 1.0, 1.0]
+  acc_min: [-1.0, -1.0, -1.0]
+  acc_max: [1.0, 1.0, 1.0]
+
+disturbance_observer:
+  enable: true
+  cutoff_freq: 0.08
+  acc_max: [0.5, 0.5, 0.5]
+  acc_min: [-0.5, -0.5, -0.5]

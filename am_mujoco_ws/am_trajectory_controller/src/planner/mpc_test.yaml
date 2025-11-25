@@ -1,0 +1,10 @@
+# Test-specific configuration
+mpc_config_path: '../../config/traj_sender_mpc.yaml'
+
+trajectory:
+  csv_path: '../../traj/system_id/system_id_250110_1.csv'
+
+simulation:
+  dt: 0.01
+  acc2thrust_gain: [0.1, 0.12, 0.1]
+  thrust_bias: [0.005, 0.005, 0.01]

@@ -1,0 +1,9 @@
+<launch>
+    <node name="trajectory_controller" pkg="trajectory_controller" type="trajectory_sender.py" output="screen">
+        <!-- <param name="trajectory_file" type="string" value="$(find trajectory_controller)/traj/nomove_quat.csv"/> -->
+        <param name="trajectory_file" type="string" value="$(find trajectory_controller)/traj/bspline_sysid.csv"/>
+        <!-- <param name="trajectory_file" type="string" value="$(find trajectory_controller)/traj/system_id/system_id_250110_1.csv"/> -->
+        <!-- <rosparam file="$(find trajectory_controller)/config/trajectory_params.yaml" command="load" /> -->
+        <param name="params" type="string" value="$(find trajectory_controller)/config/traj_sender.yaml"/>
+    </node>
+</launch>

@@ -1,0 +1,30 @@
+dt: 0.01
+geofence: [1.5, 2.0, 2.0, -1.0, -3.0, -0.5] # [x_max, y_max, z_max, x_min, y_min, z_min]
+origin: [0.0, 0.0, 0.22] # [x, y, z]
+takeoff_pos: [0.0, 0.0, 1.0] # [x, y, z]
+takeoff_quat: [0.0, 0.0, 0.0, 1.0] # [x, y, z, w]
+takeoff_duration: 10.0
+landing_duration: 8.0
+
+return_home_pos: [0.0, 0.0, 1.0] # [x, y, z]
+return_home_quat: [0.0, 0.0, 0.0, 1.0] # [x, y, z, w]
+
+send_vel: true
+send_thrust: true
+send_arm: true
+
+mpc: 
+  mass: 1.0
+  T: 2.0
+  N: 50
+  # Q: [12, 16, 12, 10, 0.05, 0.05, 0.05, 0.08, 0.08, 0.08] # [p_ee, q_ee(1 dim cost), v, arm_angle]
+  Q: [1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0] # [p_ee, q_ee(1 dim cost), v, arm_angle]
+  R: [0.0, 0.0, 0.0]
+  R_delta: [0.001, 0.001, 0.001]
+  joint_min: [0.0, 0.0, 30.0] # degree
+  joint_max: [130.0, 130.0, 150.0] # degree
+  default_arm_angle: [30.0, 32.0] # only for joint 1 and 2
+
+  output_filter_gain: [1.0, 1.0, 1.0] # 1.0 means no filtering
+
+

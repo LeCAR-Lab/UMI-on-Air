@@ -1,0 +1,12 @@
+# Test-specific configuration
+mpc_config_path: '../../config/traj_sender_mpc_ee.yaml'
+
+trajectory:
+  # csv_path: '../../traj/arm_no_flight_test.csv'
+  # csv_path: '../../traj_analysis/circle_trajectory.csv'
+  # csv_path: '../../traj_analysis/spiral_trajectory.csv'
+  csv_path: '../../traj_analysis/spiral_angle_trajectory.csv'
+simulation:
+  dt: 0.02
+  acc2thrust_gain: [0.1, 0.12, 0.1]
+  thrust_bias: [0.005, 0.005, 0.01]

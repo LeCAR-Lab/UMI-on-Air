@@ -1,0 +1,7 @@
+<launch>
+    <node name="trajectory_controller" pkg="trajectory_controller" type="ee_trajectory_sender_policy_mpc.py" output="screen">
+        <param name="params" type="string" value="$(find trajectory_controller)/config/traj_sender_mpc_ee.yaml"/>
+    </node>
+</launch>
+
+

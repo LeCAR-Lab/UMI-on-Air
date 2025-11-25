@@ -1,0 +1,12 @@
+dt: 0.05
+geofence: [2.0, 2.0, 2.0, -0.5, -2.0, -0.5] # [x_max, y_max, z_max, x_min, y_min, z_min]
+origin: [0.0, 0.0, 0.2] # [x, y, z]
+takeoff_duration: 8.0
+landing_duration: 8.0
+
+return_home_pos: [0.0, 0.0, 1.0] # [x, y, z]
+return_home_quat: [0.0, 0.0, 0.0, 1.0] # [x, y, z, w]
+
+send_vel: false
+send_thrust: false
+send_arm: true

@@ -1,0 +1,25 @@
+traj_type: random_xyz_bspline
+# traj_type: step
+
+random_xyz_bspline:
+  T: 60.0
+  T_sample: 2.0
+  max_speed: 0.15
+  pos_max: [0.2, 0.5, 1.4]
+  pos_min: [-0.5, -0.5, 1.1]
+  start: [0.0, 0.0, 1.1]
+
+figure8:
+  T: 60.0
+  A: [0.5, 0.5, 0.5]
+  W: [0.6, 0.5, 0.4]
+  Phi: [0.0, 0.0, 0.0]
+  B: [0.5, 0.0, 0.0]
+
+step:
+  T: 30.0
+  T_sample: 10.0
+  max_speed: 0.03
+  pos_max: [0.2, 0.5, 1.4]
+  pos_min: [-0.5, -0.5, 1.1]
+  start: [0.0, 0.0, 1.1]

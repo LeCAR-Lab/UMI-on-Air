@@ -1,0 +1,167 @@
+<mujoco model="ur10e_umi_cabinet">
+    <option timestep="0.02" gravity="0 0 -9.81" noslip_iterations="20" impratio="2.0"/>
+    <compiler angle="radian" meshdir="./meshes" autolimits="true"/>
+    <asset>
+        <material name="bookshelf_cover"  texuniform="false"  texture="bookshelf_cover"/>
+        <texture type="2d" name="bookshelf_cover" file="./textures/light-wood.png"/>
+
+        <material name="bookshelf_handle"  texuniform="false"  texture="bookshelf_handle"/>
+        <texture type="2d" name="bookshelf_handle" file="./textures/metal.png"/>
+
+        <!-- object-can -->
+        <mesh file="./can.stl" name="can_mesh" scale="0.8 0.8 0.8"/>
+        <texture file="./textures/soda.png" name="tex-can" type="2d"/>
+        <material name="coke" reflectance="0.7" texrepeat="5 5" texture="tex-can" texuniform="true"/>
+    </asset>
+
+    <include file="ur10e_umi.xml"/>
+    <!-- Worldbody -->
+    <worldbody>
+        <!-- Remove external base mount; base pose set inside UR model -->
+        <geom name="cabinet_base_a" type="box" pos="0.9 0 0.25" size="0.3 0.6 0.25" material="bookshelf_cover"/>
+        <geom type="box" pos="0.9 0 0.25" size="0.3 0.6 0.25" material="bookshelf_cover"/>
+        
+        <geom name="cabinet_back" type="box" pos="1.21 0 0.84" size="0.009 0.6 0.84" material="bookshelf_cover" />
+        <geom type="box" pos="1.21 0 0.84" size="0.009 0.6 0.84" material="bookshelf_cover"/>
+
+        <body name="drawer" pos="0.9 0 0.5">
+            <joint type="slide" name="drawer_slide" pos="0 0 0" axis="-1 0 0" range="0 0.45" damping="80"/>
+            <geom type="box" pos="0 0 0.02" size="0.3 0.58 0.01"  mass="5" material="bookshelf_cover" />
+            <geom type="box" pos="0.29 0 0.15" size="0.01 0.58 0.14"  mass="5" material="bookshelf_cover" />
+            <geom type="box" pos="-0.29 0 0.15" size="0.01 0.58 0.14"  mass="5" material="bookshelf_cover" />
+            <geom type="box" pos="0 0.57 0.15" size="0.3 0.01 0.14"  mass="5" material="bookshelf_cover" />
+            <geom type="box" pos="0 -0.57 0.15" size="0.3 0.01 0.14"  mass="5" material="bookshelf_cover" />
+
+            <geom type="box" pos="0 0 0.02" size="0.3 0.58 0.01" material="bookshelf_cover"/>
+            <geom type="box" pos="0.29 0 0.15" size="0.01 0.58 0.14" material="bookshelf_cover"/>
+            <geom type="box" pos="-0.29 0 0.15" size="0.01 0.58 0.14" material="bookshelf_cover"/>
+            <geom type="box" pos="0 0.57 0.15" size="0.3 0.01 0.14" material="bookshelf_cover"/>
+            <geom type="box" pos="0 -0.57 0.15" size="0.3 0.01 0.14" material="bookshelf_cover"/>
+
+            <geom type="cylinder" pos="-0.35 -0.2 0.24" size="0.02 0.05" zaxis="1 0 0" rgba="0 0 0 1" material="bookshelf_handle"/>
+            <geom type="cylinder" pos="-0.35 0.2 0.24" size="0.02 0.05" zaxis="1 0 0" rgba="0 0 0 1" material="bookshelf_handle" />
+            <geom type="box" pos="-0.39 0 0.24" size="0.01 0.2 0.01" rgba="0 0 0 1" material="bookshelf_handle" />
+            
+            <geom type="cylinder" pos="-0.35 -0.2 0.24" size="0.02 0.05" zaxis="1 0 0" material="bookshelf_handle" />
+            <geom type="cylinder" pos="-0.35 0.2 0.24" size="0.02 0.05" zaxis="1 0 0" material="bookshelf_handle" />
+            <geom type="box" pos="-0.39 0 0.24" size="0.01 0.2 0.01" material="bookshelf_handle" />
+        </body>
+
+        <body name="lateral_cabinet" pos="0.9 0 0.79">
+            <geom type="box" pos="0 0 0.02" size="0.3 0.6 0.01"  material="bookshelf_cover" />
+            <geom type="box" pos="0.29 0 0.15" size="0.01 0.6 0.14"  material="bookshelf_cover" />
+
+            <geom type="box" pos="0 0 0.02" size="0.3 0.6 0.01" material="bookshelf_cover"/>
+            <geom type="box" pos="0.29 0 0.15" size="0.01 0.6 0.14" material="bookshelf_cover"/>
+
+            <body name="left_door" pos="-0.29 0.29 0.15">
+                <joint type="hinge" name="left_door_hinge" pos="0 0.29 0.15" range="-1.57 0" damping="1"/>
+                <geom type="box" pos="0 0 0.01" size="0.01 0.28 0.13"  mass="5" material="bookshelf_cover" />
+                <geom type="cylinder" pos="-0.06 -0.2 0.09" size="0.02 0.05" zaxis="1 0 0" rgba="0 0 0 1" />
+                <geom type="cylinder" pos="-0.06 -0.2 -0.09" size="0.02 0.05" zaxis="1 0 0" rgba="0 0 0 1" />
+                <geom type="box" pos="-0.1 -0.2 0" size="0.01 0.01 0.09" rgba="0 0 0 1" />
+                
+                <geom type="box" pos="0 0 0.01" size="0.01 0.28 0.13" material="bookshelf_cover"/>
+                <geom type="cylinder" pos="-0.06 -0.2 0.09" size="0.02 0.05" zaxis="1 0 0" />
+                <geom type="cylinder" pos="-0.06 -0.2 -0.09" size="0.02 0.05" zaxis="1 0 0" />
+                <geom type="box" pos="-0.1 -0.2 0" size="0.01 0.01 0.09" />
+            </body>
+            <body name="right_door" pos="-0.29 -0.29 0.15">
+                <joint type="hinge" name="right_door_hinge" pos="0 -0.29 0.15" range="0 1.57" damping="1"/>
+                <geom type="box" pos="0 0 0.01" size="0.01 0.28 0.13"  mass="5" material="bookshelf_cover" />
+                <geom type="cylinder" pos="-0.06 0.2 0.09" size="0.02 0.05" zaxis="1 0 0" rgba="0 0 0 1" />
+                <geom type="cylinder" pos="-0.06 0.2 -0.09" size="0.02 0.05" zaxis="1 0 0" rgba="0 0 0 1" />
+                <geom type="box" pos="-0.1 0.2 0" size="0.01 0.01 0.09" rgba="0 0 0 1" />
+                
+                <geom type="box" pos="0 0 0.01" size="0.01 0.28 0.13" material="bookshelf_cover"/>
+                <geom type="cylinder" pos="-0.06 0.2 0.09" size="0.02 0.05" zaxis="1 0 0" />
+                <geom type="cylinder" pos="-0.06 0.2 -0.09" size="0.02 0.05" zaxis="1 0 0" />
+                <geom type="box" pos="-0.1 0.2 0" size="0.01 0.01 0.09" />
+            </body>
+        </body>
+        <body name="pulling_cabinet" pos="0.9 0 1.08">
+            <geom type="box" pos="0 0 0.02" size="0.3 0.6 0.01"  material="bookshelf_cover" />
+            <geom type="box" pos="0.29 0 0.15" size="0.01 0.6 0.14"  material="bookshelf_cover" />
+            <geom type="box" pos="-0.29 -0.29 0.16" size="0.01 0.28 0.13"  material="bookshelf_cover" />
+            
+            <geom type="box" pos="0 0 0.02" size="0.3 0.6 0.01"  material="bookshelf_cover"/>
+            <geom type="box" pos="0.29 0 0.15" size="0.01 0.6 0.14" material="bookshelf_cover"/>
+            <geom type="box" pos="-0.29 -0.29 0.16" size="0.01 0.28 0.13" material="bookshelf_cover"/>
+
+            <body name="pulling_door" pos="-0.32 0.29 0.15">
+                <joint type="slide" name="pull_door_slide" pos="0 0.29 0.15" range="-0.6 0" axis="0 1 0" damping="0.01"/>
+                <geom type="box" pos="0 0 0.01" size="0.01 0.28 0.13"  mass="0.001" material="bookshelf_cover" />
+                <geom type="cylinder" pos="-0.06 0.2 0.09" size="0.02 0.05" zaxis="1 0 0" rgba="0 0 0 1"  mass="0.001"/>
+                <geom type="cylinder" pos="-0.06 0.2 -0.09" size="0.02 0.05" zaxis="1 0 0" rgba="0 0 0 1"  mass="0.001"/>
+                <geom type="box" pos="-0.1 0.2 0" size="0.01 0.01 0.09" rgba="0 0 0 1"  mass="0.001"/>
+                
+                <geom type="box" pos="0 0 0.01" size="0.01 0.28 0.13" material="bookshelf_cover" mass="0.001"/>
+                <geom type="cylinder" pos="-0.06 0.2 0.09" size="0.02 0.05" zaxis="1 0 0" mass="0.001"/>
+                <geom type="cylinder" pos="-0.06 0.2 -0.09" size="0.02 0.05" zaxis="1 0 0" mass="0.001"/>
+                <geom type="box" pos="-0.1 0.2 0" size="0.01 0.01 0.09" mass="0.001"/>
+            </body>
+        </body>
+        <body name="pullup_drawer" pos="0.9 0 1.37">
+            <geom type="box" pos="0 0 0.02" size="0.3 0.6 0.01"  material="bookshelf_cover" />
+            <geom type="box" pos="0.29 0 0.15" size="0.01 0.6 0.14"  material="bookshelf_cover" />
+            
+            <geom type="box" pos="0 0 0.02" size="0.3 0.6 0.01" material="bookshelf_cover"/>
+            <geom type="box" pos="0.29 0 0.15" size="0.01 0.6 0.14" material="bookshelf_cover"/>
+
+            <body name="pullup_door" pos="0 0 0">
+                <joint type="hinge" name="pullup_door_hinge"  pos="-0.29 0 0.29" axis="0 1 0" range="0 1.57" damping="10"/>
+                <geom type="box" pos="-0.29 0 0.16" size="0.01 0.58 0.125" mass="5"  material="bookshelf_cover" />
+                <geom type="cylinder" pos="-0.35 -0.2 0.08" size="0.02 0.05" zaxis="1 0 0" rgba="0 0 0 1" />
+                <geom type="cylinder" pos="-0.35 0.2 0.08" size="0.02 0.05" zaxis="1 0 0" rgba="0 0 0 1" />
+                <geom type="box" pos="-0.39 0 0.08" size="0.01 0.2 0.01" rgba="0 0 0 1" />
+                
+                <geom type="box" pos="-0.29 0 0.16" size="0.01 0.58 0.125" material="bookshelf_cover"/>
+                <geom type="cylinder" pos="-0.35 -0.2 0.08" size="0.02 0.05" zaxis="1 0 0" />
+                <geom type="cylinder" pos="-0.35 0.2 0.08" size="0.02 0.05" zaxis="1 0 0" />
+                <geom type="box" pos="-0.39 0 0.08" size="0.01 0.2 0.01" />
+            </body>
+            
+            <geom type="box" pos="0.01 0 0.3" size="0.29 0.6 0.01"  material="bookshelf_cover" />
+            <geom type="box" pos="0.01 0 0.3" size="0.29 0.6 0.01" material="bookshelf_cover"/>
+        </body>
+
+        <geom type="box" pos="0.9 0.59 0.84" size="0.3 0.01 0.84"  material="bookshelf_cover" />
+        <geom type="box" pos="0.9 -0.59 0.84" size="0.3 0.01 0.84"  material="bookshelf_cover" />
+        
+        <geom type="box" pos="0.9 0.59 0.84" size="0.3 0.01 0.84"  material="bookshelf_cover"/>
+        <geom type="box" pos="0.9 -0.59 0.84" size="0.3 0.01 0.84"  material="bookshelf_cover"/>
+        
+        
+        <body name="drawer_cube" pos="0.9 -0.15 0.58">
+            <freejoint name="free_drawer_cube"/>
+            <geom type="box" pos="0 0 0" size="0.05 0.05 0.05" rgba="0.1 0.3 0.3 1" friction="1 0.5 0.1" />
+            <geom type="box" pos="0 0 0" size="0.05 0.05 0.05" friction="1 0.5 0.1" />
+        </body>
+        <body name="lateral_cabinet_cube" pos="0.9 0 0.87">
+            <freejoint name="free_lateral_cabinet_cube"/>
+            <geom type="box" pos="0 0 0" size="0.05 0.05 0.05" rgba="0.3 0.1 0.3 1"  />
+            <geom type="box" pos="0 0 0" size="0.05 0.05 0.05" />
+        </body>
+        <!-- <body name="pulling_cabinet_cube" pos="0.9 0 1.16">
+            <freejoint name="free_pulling_cabinet_cube"/>
+            <geom type="box" pos="0 0 0" size="0.02 0.015 0.015" rgba="0.9 0.1 0.1 1" mass="0.01"/>
+            <geom type="box" pos="0 0 0" size="0.02 0.015 0.015" rgba="0.9 0.1 0.1 1" />
+        </body> -->
+        <body name="can" pos="0.8 0.25 1.16">
+            <inertial pos="0.0 0 0" mass="0.01" diaginertia="0.01 0.01 0.01" />
+            <joint name="can" type="free" damping="0.01" armature="0.0005"/>
+            <geom name='can' mesh="can_mesh" type="mesh"
+                   density="10" friction="1 0.5 0.1" 
+                   group="0" material="coke"/>
+            <geom name='can_collision' mesh="can_mesh" type="mesh" material="coke" friction="1 0.5 0.1"/>
+        </body>
+        <body name="pullup_drawer_cube" pos="0.9 0 1.45">
+            <freejoint name="free_pullup_drawer_cube"/>
+            <geom type="box" pos="0 0 0" size="0.05 0.05 0.05" rgba="0.1 0.1 0.3 1" />
+            <geom type="box" pos="0 0 0" size="0.05 0.05 0.05" />
+        </body>
+    </worldbody>
+
+    
+</mujoco>
+

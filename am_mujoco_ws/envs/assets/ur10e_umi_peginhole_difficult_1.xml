@@ -1,0 +1,58 @@
+<mujoco model="hexa_scorpion_peg_in_hole">
+    <option
+            timestep="0.02"
+            gravity="0 0 0"
+            noslip_iterations="100"
+            impratio="50.0"
+            iterations="100"
+            tolerance="1e-12"
+            cone="elliptic"
+            jacobian="dense">
+    </option>
+
+    <default>
+        <geom friction="1.0 0.5 0.5" condim="6" solref="0.01 1" solimp="0.99 0.99 0.01"/>
+    </default>
+
+
+
+
+    <include file="ur10e_umi_withpeg.xml"/>
+    <!-- add wall -->
+
+    <worldbody>
+        <body name = "wall" pos="1.0 0 0.0">      
+            <geom name = "wall_bottom_geom" type="box" size="0.01 2.0 0.495" pos="0.0 0.0 0.495" mass="1000000" />
+            <geom name = "wall_top_geom" type="box" size="0.01 2.0 0.495" pos="0.0 0.0 1.505" mass="1000000" />
+            <geom name = "wall_left_geom" type="box" size="0.01 0.995 0.01" pos="0.0 1.005 1.0" mass="1000000" />
+            <geom name = "wall_right_geom" type="box" size="0.01 0.995 0.01" pos="0.0 -1.005 1.0" mass="1000000" />
+            <geom name = "wall_bottom_color_geom" type="box" size="0.0001 0.03 0.01" pos="-0.01 0.0 0.98" mass="1000000" rgba="0.0 1.0 0.0 1" />
+            <geom name = "wall_top_color_geom" type="box" size="0.0001 0.03 0.01" pos="-0.01 0.0 1.02" mass="1000000" rgba="0.0 1.0 0.0 1" />
+            <geom name = "wall_left_color_geom" type="box" size="0.0001 0.01 0.01" pos="-0.01 0.02 1.0" mass="1000000" rgba="0.0 1.0 0.0 1" />
+            <geom name = "wall_right_color_geom" type="box" size="0.0001 0.01 0.01" pos="-0.01 -0.02 1.0" mass="1000000" rgba="0.0 1.0 0.0 1" />
+            <geom name="wall_overhang" type="box" size="0.03 2.0 0.05" pos="-0.055 0.0 2.0" mass="1000000" rgba="0.5 0.5 0.5 1"/>
+            
+            <body name = "reward_box">            
+                <!-- add color to be red -->
+                <geom name = "reward_box_geom" type="box" size="0.05 0.2 0.2" pos="0.065 0.0 1.0" rgba="1 0 0 1" />
+            </body>
+            <joint type="free" name="wall_joint"/>
+        </body>
+    </worldbody>
+
+    <!-- add one object behind the wall for reward -->
+    <worldbody>
+    </worldbody>
+
+
+    <!-- add obj -->
+    <!-- <worldbody>
+        <body name = "object">
+
+            <geom type = "box" size="0.1 0.01 0.01" pos="0.2 0. 1.05" mass="0.1" friction="10.0 0.5 0.1" condim="6" />
+            <joint type="free" name="obj_joint" damping = "0.02" />
+        </body>
+    </worldbody> -->
+
+
+</mujoco>

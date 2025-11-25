@@ -1,0 +1,7 @@
+<launch>
+    <node name="trajectory_controller" pkg="trajectory_controller" type="ee_trajectory_sender_online_4dof.py" output="screen">
+        <param name="params" type="string" value="$(find trajectory_controller)/config/traj_sender.yaml"/>
+        <!-- load the mjcf model -->
+        <param name="xml_path" type="string" value="$(find trajectory_controller)/assets/hexa_scorpion.xml"/>
+    </node>
+</launch>

@@ -1,0 +1,8 @@
+# Test-specific configuration
+mpc_config_path: 'traj_sender_mpc_ee.yaml'
+
+trajectory:
+  csv_path: '../../../traj/arm_no_flight_test_old.csv'
+
+simulation:
+  dt: 0.01

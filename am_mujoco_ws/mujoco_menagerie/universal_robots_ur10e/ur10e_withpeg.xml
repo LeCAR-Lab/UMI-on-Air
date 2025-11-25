@@ -1,0 +1,177 @@
+<mujoco model="ur10e">
+  <compiler angle="radian" meshdir="." autolimits="true"/>
+
+  <option integrator="implicit" timestep="0.02"/>
+
+  <default>
+    <default class="ur10e">
+      <material specular="0.5" shininess="0.25"/>
+      <joint axis="0 1 0" range="-6.28319 6.28319" armature="0.35"/>
+      <position ctrlrange="-6.2831 6.2831"/>
+      <!-- Softer servo gains to prevent excessive torques during contact -->
+      <general biastype="affine" ctrlrange="-6.2831 6.2831" gainprm="400" biasprm="0 -400 -40"/>
+      <default class="size4">
+        <joint damping="18"/>
+        <general forcerange="-120 120"/>
+      </default>
+      <default class="size3">
+        <joint damping="12"/>
+        <general forcerange="-60 60"/>
+        <default class="size3_limited">
+          <joint range="-3.1415 3.1415"/>
+          <general ctrlrange="-3.1415 3.1415"/>
+        </default>
+      </default>
+      <default class="size2">
+        <joint damping="6"/>
+        <general forcerange="-25 25"/>
+      </default>
+      <default class="visual">
+        <geom type="mesh" contype="0" conaffinity="0" group="2"/>
+      </default>
+      <default class="collision">
+        <geom type="capsule" group="3"/>
+        <default class="eef_collision">
+          <geom type="cylinder"/>
+        </default>
+      </default>
+      <site size="0.001" rgba="0.5 0.5 0.5 0.3" group="4"/>
+    </default>
+  </default>
+
+  <asset>
+    <material class="ur10e" name="black" rgba="0.033 0.033 0.033 1"/>
+    <material class="ur10e" name="jointgray" rgba="0.278 0.278 0.278 1"/>
+    <material class="ur10e" name="linkgray" rgba="0.82 0.82 0.82 1"/>
+    <material class="ur10e" name="urblue" rgba="0.49 0.678 0.8 1"/>
+
+    <mesh file="assets/base_0.obj"/>
+    <mesh file="assets/base_1.obj"/>
+    <mesh file="assets/shoulder_0.obj"/>
+    <mesh file="assets/shoulder_1.obj"/>
+    <mesh file="assets/shoulder_2.obj"/>
+    <mesh file="assets/upperarm_0.obj"/>
+    <mesh file="assets/upperarm_1.obj"/>
+    <mesh file="assets/upperarm_2.obj"/>
+    <mesh file="assets/upperarm_3.obj"/>
+    <mesh file="assets/forearm_0.obj"/>
+    <mesh file="assets/forearm_1.obj"/>
+    <mesh file="assets/forearm_2.obj"/>
+    <mesh file="assets/forearm_3.obj"/>
+    <mesh file="assets/wrist1_0.obj"/>
+    <mesh file="assets/wrist1_1.obj"/>
+    <mesh file="assets/wrist1_2.obj"/>
+    <mesh file="assets/wrist2_0.obj"/>
+    <mesh file="assets/wrist2_1.obj"/>
+    <mesh file="assets/wrist2_2.obj"/>
+    <mesh file="assets/wrist3.obj"/>
+  </asset>
+
+  <!-- UMI gripper assets: point meshdir to env assets -->
+  <compiler angle="radian" meshdir="/home/harsh/flyingumi/am_mujoco_ws/envs/assets/meshes" autolimits="true"/>
+  <asset>
+    <mesh name="gripper_base_mesh"      file="v2_arm_gripper.stl"            scale="0.001 0.001 0.001"/>
+    <mesh name="gripper_fingertip_mesh" file="v2_gripper_long_fingertip.stl" scale="0.001 0.001 0.001"/>
+  </asset>
+
+  <worldbody>
+    <light name="my_light" pos="0 0 35" dir="0 0 -1" diffuse="1 1 1" specular="0.5 0.5 0.5"/>
+    <body name="base" pos="-0.15 0 0.9" quat="0 0 0 -1" childclass="ur10e">
+      <inertial mass="4.0" pos="0 0 0" diaginertia="0.0061063308908 0.0061063308908 0.01125"/>
+      <geom mesh="base_0" material="black" class="visual"/>
+      <geom mesh="base_1" material="jointgray" class="visual"/>
+      <body name="shoulder_link" pos="0 0 0.181">
+        <inertial pos="0 0 0" mass="7.778" diaginertia="0.0314743 0.0314743 0.0218756"/>
+        <joint name="shoulder_pan_joint" class="size4" axis="0 0 1"/>
+        <geom mesh="shoulder_0" material="urblue" class="visual"/>
+        <geom mesh="shoulder_1" material="black" class="visual"/>
+        <geom mesh="shoulder_2" material="jointgray" class="visual"/>
+        <geom class="collision" size="0.078 0.08" pos="0 0 -0.05"/>
+        <body name="upper_arm_link" pos="0 0.176 0" quat="1 0 1 0">
+          <inertial pos="0 0 0.3065" mass="12.93" diaginertia="0.423074 0.423074 0.0363656"/>
+          <joint name="shoulder_lift_joint" class="size4"/>
+          <geom mesh="upperarm_0" material="black" class="visual"/>
+          <geom mesh="upperarm_1" material="jointgray" class="visual"/>
+          <geom mesh="upperarm_2" material="urblue" class="visual"/>
+          <geom mesh="upperarm_3" material="linkgray" class="visual"/>
+          <geom class="collision" pos="0 -0.05 0" quat="1 1 0 0" size="0.078 0.08"/>
+          <geom class="collision" size="0.06 0.3" pos="0 0 0.3"/>
+          <body name="forearm_link" pos="0 -0.137 0.613">
+            <inertial pos="0 0 0.2855" mass="3.87" diaginertia="0.11059 0.11059 0.0108844"/>
+            <joint name="elbow_joint" class="size3_limited"/>
+            <geom mesh="forearm_0" material="urblue" class="visual"/>
+            <geom mesh="forearm_1" material="black" class="visual"/>
+            <geom mesh="forearm_2" material="jointgray" class="visual"/>
+            <geom mesh="forearm_3" material="linkgray" class="visual"/>
+            <geom class="collision" pos="0 0.08 0" quat="1 1 0 0" size="0.058 0.065"/>
+            <geom class="collision" size="0.043 0.28" pos="0 0 0.29"/>
+            <body name="wrist_1_link" pos="0 0 0.571" quat="1 0 1 0">
+              <inertial pos="0 0.135 0" quat="0.5 0.5 -0.5 0.5" mass="1.96"
+                diaginertia="0.0055125 0.00510825 0.00510825"/>
+              <joint name="wrist_1_joint" class="size2"/>
+              <geom mesh="wrist1_0" material="black" class="visual"/>
+              <geom mesh="wrist1_1" material="urblue" class="visual"/>
+              <geom mesh="wrist1_2" material="jointgray" class="visual"/>
+              <geom class="collision" pos="0 0.06 0" quat="1 1 0 0" size="0.05 0.07"/>
+              <body name="wrist_2_link" pos="0 0.135 0">
+                <inertial pos="0 0 0.12" quat="0.5 0.5 -0.5 0.5" mass="1.96"
+                  diaginertia="0.0055125 0.00510825 0.00510825"/>
+                <joint name="wrist_2_joint" axis="0 0 1" class="size2"/>
+                <geom mesh="wrist2_0" material="black" class="visual"/>
+                <geom mesh="wrist2_1" material="urblue" class="visual"/>
+                <geom mesh="wrist2_2" material="jointgray" class="visual"/>
+                <geom class="collision" size="0.046 0.065" pos="0 0 0.05"/>
+                <geom class="collision" pos="0 0.028 0.12" quat="1 1 0 0" size="0.046 0.043"/>
+                <body name="wrist_3_link" pos="0 0 0.12">
+                  <inertial pos="0 0.092 0" quat="0 1 -1 0" mass="0.202"
+                    diaginertia="0.000204525 0.000144346 0.000144346"/>
+                  <joint name="wrist_3_joint" class="size2"/>
+                  <geom material="linkgray" mesh="wrist3" class="visual"/>
+                  <geom class="eef_collision" pos="0 0.097 0" quat="1 1 0 0" size="0.046 0.02"/>
+                  <site name="attachment_site" pos="0 0.1 0" quat="-1 1 0 0"/>
+                  <body name="umi_mount" pos="0 0.1 0" quat="-1 1 0 0">
+                    <!-- Map UMI +X to UR +Z with -90deg about Y (flip from previous) -->
+                    <body name="rotY90" pos="0 0 0" quat="0.707 0 -0.707 0">
+                      <body name="ee" pos="0 0 0" quat="1 0 0 0">
+                        <inertial pos="0 0 0" mass="0.0001" diaginertia="0.0001 0.0001 0.0001"/>
+                        <body name="gripper_base_link" pos="0 0 0" quat="0.707 0.707 0 0">
+                          <geom name="gripper_base_geom" type="mesh" mesh="gripper_base_mesh" mass="0.03"/>
+                          <!-- left finger -->
+                          <body name="lfinger_link" pos="0.08 0 0" quat="0.707 0.707 0 0">
+                            <joint name="lfinger_slide" type="slide" axis="0 1 0" range="0.001 0.06" damping="0.08"/>
+                            <geom name="lfinger_geom" type="mesh" mesh="gripper_fingertip_mesh" mass="0.03"/>
+                          </body>
+                          <!-- right finger -->
+                          <body name="rfinger_link" pos="0.08 0 0" quat="0.707 -0.707 0 0">
+                            <joint name="rfinger_slide" type="slide" axis="0 1 0" range="0.001 0.06" damping="0.08"/>
+                            <geom name="rfinger_geom" type="mesh" mesh="gripper_fingertip_mesh" mass="0.03"/>
+                          </body>
+                          <!-- EE camera now attached to gripper base link -->
+                          <camera name="ee" mode="fixed" pos="0.05 0.05 0" axisangle="0 1 0 -1.57" fovy="70"/>
+                        </body>
+                        <body name="obj" pos="0.15 0 0" quat="0.707 0 0.707 0">
+                          <geom name="obj_geom" type="cylinder" size="0.005 0.12" rgba="0.55294 0.1294 0.75294 1" mass="0.001"/>
+                        </body>
+                      </body>
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <general class="size4" name="shoulder_pan" joint="shoulder_pan_joint"/>
+    <general class="size4" name="shoulder_lift" joint="shoulder_lift_joint"/>
+    <general class="size3_limited" name="elbow" joint="elbow_joint"/>
+    <general class="size2" name="wrist_1" joint="wrist_1_joint"/>
+    <general class="size2" name="wrist_2" joint="wrist_2_joint"/>
+    <general class="size2" name="wrist_3" joint="wrist_3_joint"/>
+  </actuator>
+
+  
+</mujoco>

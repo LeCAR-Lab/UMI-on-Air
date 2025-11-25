@@ -1,0 +1,8 @@
+<launch>
+    <node name="trajectory_controller" pkg="trajectory_controller" type="ee_trajectory_sender.py" output="screen">
+        <param name="trajectory_file" type="string" value="$(find trajectory_controller)/traj/test_ee_no_yaw.csv"/>
+        <param name="params" type="string" value="$(find trajectory_controller)/config/traj_sender.yaml"/>
+        <!-- load the mjcf model -->
+        <param name="xml_path" type="string" value="$(find trajectory_controller)/assets/hexa_scorpion.xml"/>
+    </node>
+</launch>

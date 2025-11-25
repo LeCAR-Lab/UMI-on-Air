@@ -1,0 +1,6 @@
+<launch>
+    <node name="trajectory_controller" pkg="trajectory_controller" type="trajectory_sender_mpc.py" output="screen">
+        <param name="trajectory_file" type="string" value="$(find trajectory_controller)/traj/system_id/system_id_250110_1.csv"/>
+        <param name="params" type="string" value="$(find trajectory_controller)/config/traj_sender_mpc.yaml"/>
+    </node>
+</launch>

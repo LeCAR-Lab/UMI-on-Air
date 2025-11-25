@@ -1,0 +1,107 @@
+<mujoco model="hexa_scorpion">
+    <option timestep="0.02"
+            gravity="0 0 0" 
+            density="1.2" 
+            viscosity="0.00002" 
+            integrator="implicit" 
+            cone="pyramidal" 
+            noslip_iterations="1000" 
+            sdf_iterations="1000" 
+            sdf_initpoints="1000" 
+            iterations="10000" 
+            ls_tolerance="0.0001" 
+            ls_iterations="1000" 
+            o_margin="0.02" 
+            o_solref="0.02 1" 
+            o_solimp="0.9 0.95 0.001" >
+    </option>
+
+    <compiler meshdir="meshes" angle = "radian" autolimits = "true"/>
+
+    <asset>
+        <texture name="myTexture" file="checkered.png" />
+        <material name="checkered" texture="myTexture" />
+        <texture name="grid" type="2d" builtin="checker" rgb1=".1 .2 .3"
+        rgb2=".2 .3 .4" width="512" height="512" mark="edge" markrgb=".2 .3 .4"/>
+        <material name="grid" texture="grid" texrepeat="1 1" texuniform="true"
+        reflectance=".2"/>
+        <!-- <mesh name="main_body" file="main_body.stl"/> -->
+
+        <mesh name="arm_link1_pitch" file="arm_link1_pitch.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="arm_link2_pitch" file="arm_link2_pitch.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="arm_gripper" file="finger.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="prop_ccw" file="prop_ccw_assembly_remeshed_v3.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="prop" file="propeller.stl" scale="0.001 0.001 0.001"/>
+    </asset>
+    
+    <default>
+      <geom friction="0.5 0.005 0.0001"/>
+    </default>
+    <worldbody>
+        <!-- Floor -->
+        <!-- <geom name="floor" size="0 0 0.05" type="plane" material="grid"/> -->
+        <geom name="ground" type="plane" pos="0 0 -.5" size="10 10 .1" material="grid" solimp=".99 .99 .01" solref=".001 1"/>
+        <!-- Wall -->
+        <!-- <geom name="wall" pos="15 0 10" size="0.2 5 10" type="box"  conaffinity="1" rgba="1 0.98 0.0 1" condim="3" friction="0.005 0.0001 0.00001"/> -->
+        <!-- Light source definition -->
+        <light name="my_light" pos="0 0 35" dir="0 0 -1" diffuse="1 1 1" specular="0.5 0.5 0.5"/>
+        <!-- Site -->
+        <site name="target_marker" pos="0.1 0 0" size="0.05" rgba="1 0 0 1" type="sphere"/>
+        <body name="base_link" pos="0 0 0.5" quat="1 0 0 0">
+            <!-- base_camera -->
+            <camera name="base" mode="fixed" pos="0.175 0 0.075" euler="1.571 -1.571 0" fovy="43"/>
+            <geom   name="main_body" 
+                    type="box" 
+                    pos="0 0 -0.065" 
+                    quat="1 0 0 0" 
+                    size="0.2 0.2 0.105" 
+                    rgba="0.3 0.3 0.8 1" 
+                    mass="5"
+                    contype="1"
+                    conaffinity="1" />
+            <!-- <geom type="mesh" mesh="main_body" pos="0 0 0" quat="1 0 0 0" mass="0.1"/> -->
+            <joint name="main_joint" type="free"/>
+            
+            <body name="manipulation_link1_pitch_link" pos="0.09406 0.0 0.018872" quat="0.707 0.707 0 0">
+                <geom type="mesh" mesh="arm_link1_pitch" pos = "0 0 0" quat="1 0 0 0" mass = "0.1"/>
+                <joint name="arm_link1_pitch_joint" type="hinge" limited= "false" pos="0 0 0" axis="0 0 -1" range="-0.5 3.0" damping="0.0"/>
+                <body name="manipulation_link2_pitch_link" pos="-0.364 0.0838 0" quat="1 0 0 0">
+                    <geom type="mesh" mesh="arm_link2_pitch" mass="0.1"/>
+                    <joint name="arm_link2_pitch_joint" type="hinge" pos="0 0 0" axis="0 0 1" range="-0.5 3.0" damping="0.0"/>
+                    <!-- ee_amera -->
+                    <camera name="ee" mode="fixed" pos="0.36 0.05 0" axisangle="0 1 0 -1.57" fovy="43"/>
+                    <!-- add a box here -->
+                    <body name="ee" pos="0.455 0 0" quat="0.707 -0.707 0 0">
+                        <inertial pos="-0.00 -0.000 0.00" quat="1 0 0 0" mass="0.001" diaginertia="0.0000 0.0000 0" />
+                        <geom type="box" size="0.02 0.02 0.02" rgba="0.55294 0.1294 0.75294 1" />
+                    </body>
+                    <body name="manipulation_lfinger_link" pos="0.46025 0.0 -0.015" quat="0 0.707 0 0.707">
+                        <geom type="mesh" mesh="arm_gripper" mass="0.01"/>
+                        <joint name="arm_lfinger_joint" type="slide" pos="0 0 0" axis="1 0 0" range="-0.05 0.0" damping="0.0"/>
+                    </body>
+                    <body name="manipulation_rfinger_link" pos="0.46025 0 0.015" quat="0.707 0.0 0.707 0.0">
+                        <geom type="mesh" mesh="arm_gripper" mass="0.01"/>
+                        <joint name="arm_rfinger_joint" type="slide" pos="0 0 0" axis="1 0 0" range="-0.05 0.0" damping="0.0"/>
+                    </body>
+                </body>
+            
+            </body>
+        </body>
+
+    </worldbody>
+    <actuator>
+        <motor name="fx" joint="main_joint" gear="1 0 0 0 0 0" />
+        <motor name="fy" joint="main_joint" gear="0 1 0 0 0 0" />
+        <motor name="fz" joint="main_joint" gear="0 0 1 0 0 0" />
+        <motor name="tx" joint="main_joint" gear="0 0 0 1 0 0" />
+        <motor name="ty" joint="main_joint" gear="0 0 0 0 1 0" />
+        <motor name="tz" joint="main_joint" gear="0 0 0 0 0 1" />
+
+        <motor name="manipulation_link1_pitch_motor" joint="arm_link1_pitch_joint" ctrlrange="-1 1"/>
+        <motor name="manipulation_link2_pitch_motor" joint="arm_link2_pitch_joint" ctrlrange="-1 1"/>
+        <motor name="manipulation_lfinger_motor" joint="arm_lfinger_joint" ctrlrange="-10 10"/>
+        <motor name="manipulation_rfinger_motor" joint="arm_rfinger_joint" ctrlrange="-10 10"/>
+
+    </actuator>
+
+</mujoco>

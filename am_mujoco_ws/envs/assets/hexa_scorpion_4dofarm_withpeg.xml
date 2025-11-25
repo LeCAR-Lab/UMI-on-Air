@@ -1,0 +1,152 @@
+<mujoco model="hexa_scorpion">
+    <option integrator="implicit" timestep="0.02" />
+
+    <compiler meshdir="./meshes" angle = "radian" autolimits = "true"/>
+
+    <option gravity="0 0 0"/>
+
+    <asset>
+        <texture name="myTexture" file="./textures/checkered.png" />
+        <material name="checkered" texture="myTexture" />
+        <texture name="grid" type="2d" builtin="checker" rgb1=".1 .2 .3"
+        rgb2=".2 .3 .4" width="512" height="512" mark="edge" markrgb=".2 .3 .4"/>
+        <material name="grid" texture="grid" texrepeat="1 1" texuniform="true"
+        reflectance=".2"/>
+        <!-- <mesh name="main_body" file="main_body.stl"/> -->
+        <mesh name="drone_base" file="v2_drone_base.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="v2_arm_base" file="v2_arm_base_test.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="v2_arm_link1_pitch" file="v2_arm_link1_pitch.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="v2_arm_link2_pitch" file="v2_arm_link2_pitch.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="v2_arm_link3_pitch" file="v2_arm_link3_pitch.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="v2_arm_link4_roll" file="v2_arm_link4_roll.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="v2_arm_gripper" file="v2_arm_gripper.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="v2_gripper_long_fingertip" file="v2_gripper_long_fingertip.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="v2_prop_arm_cw" file="v2_prop_arm_cw.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="v2_prop_arm_ccw" file="v2_prop_arm_ccw.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="prop_ccw" file="prop_ccw_assembly_remeshed_v3.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="prop" file="propeller.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="vx300s_1_base" file="vx300s_1_base.stl" scale="0.001 0.001 0.001" />
+        <mesh name="vx300s_2_shoulder" file="vx300s_2_shoulder.stl" scale="0.001 0.001 0.001" />
+        <mesh name="vx300s_3_upper_arm" file="vx300s_3_upper_arm.stl" scale="0.001 0.001 0.001" />
+        <mesh name="vx300s_4_upper_forearm" file="vx300s_4_upper_forearm.stl" scale="0.001 0.001 0.001" />
+        <mesh name="vx300s_5_lower_forearm" file="vx300s_5_lower_forearm.stl" scale="0.001 0.001 0.001" />
+        <mesh name="vx300s_6_wrist" file="vx300s_6_wrist.stl" scale="0.001 0.001 0.001" />
+        <mesh name="vx300s_7_gripper" file="vx300s_7_gripper.stl" scale="0.001 0.001 0.001" />
+        <mesh name="vx300s_8_gripper_prop" file="vx300s_8_gripper_prop.stl" scale="0.001 0.001 0.001" />
+        <mesh name="vx300s_9_gripper_bar" file="vx300s_9_gripper_bar.stl" scale="0.001 0.001 0.001" />
+        <mesh name="vx300s_10_gripper_finger_left" file="vx300s_10_custom_finger_left.stl" scale="0.001 0.001 0.001" />
+        <mesh name="vx300s_10_gripper_finger_right" file="vx300s_10_custom_finger_right.stl" scale="0.001 0.001 0.001" />
+    </asset>
+    
+    <default>
+      <geom friction="0.5 0.005 0.0001"/>
+    </default>
+
+    <worldbody>
+        <!-- Floor -->
+        <!-- <geom name="floor" size="0 0 0.05" type="plane" material="grid"/> -->
+        <geom name="ground" type="plane" pos="0 0 -.5" size="10 10 .1" material="grid" solimp=".99 .99 .01" solref=".001 1"/>
+        <!-- scene camera -->
+        <camera name="scene" mode="fixed" pos="-2.0 0 1.0" euler="1.571 -1.571 0" fovy="43"/>
+        <!-- side camera -->
+        <camera name="side" mode="fixed" pos="1.5 -5 1.0" euler="1.571 -0 0" fovy="100"/>
+        <!-- Light source definition -->
+        <light name="my_light" pos="0 0 35" dir="0 0 -1" diffuse="1 1 1" specular="0.5 0.5 0.5"/>
+        <!-- Site -->
+        <site name="target_marker" pos="0.1 0 0" size="0.02" rgba="1 0 0 1" type="sphere"/>
+        <body name="base_link" pos="0 0 1.0" quat="1 0 0 0">
+            <!-- base_camera -->
+            <camera name="base" mode="fixed" pos="0.175 0 0.075" euler="1.571 -1.571 0" fovy="43"/>
+            <!-- <geom   name="main_body" 
+                    type="box" 
+                    pos="0 0 -0.065" 
+                    quat="1 0 0 0" 
+                    size="0.1 0.1 0.05" 
+                    rgba="0.3 0.3 0.8 1" 
+                    mass="5"
+                    contype="1"
+                    conaffinity="1" /> -->
+            <geom type="mesh" mesh="drone_base" pos="0 0 0" quat="1 0 0 0" mass="5.0"/>
+            <geom type="mesh" mesh="v2_prop_arm_cw" pos="0.0 0.026 -0.011" quat="1 0 0 0" mass="0.1"/>
+            <geom type="mesh" mesh="v2_prop_arm_ccw" pos="-0.0231 0.013 -0.011" quat="0.866 0 0 0.5" mass="0.1"/>
+            <geom type="mesh" mesh="v2_prop_arm_cw" pos="-0.0231 -0.013 -0.011" quat="0.5 0 0 0.866" mass="0.1"/>
+            <geom type="mesh" mesh="v2_prop_arm_ccw" pos="0.0 -0.026 -0.011" quat="0.0 0 0 1" mass="0.1"/>
+            <geom type="mesh" mesh="v2_prop_arm_cw" pos="0.0231 -0.013 -0.011" quat="-0.5 0 0 0.866" mass="0.1"/>
+            <geom type="mesh" mesh="v2_prop_arm_ccw" pos="0.0231 0.013 -0.011" quat="0.866 0 0 -0.5" mass="0.1"/>
+
+            <geom name="thruster0" type="cylinder" pos="0.34175 0.1585 -0.058"   size="0.15 0.0025"  quat = "0.9659 -0.2242 -0.1291 0." rgba="0.4 0.4 0.4 1" mass = ".0025"/>
+            <geom name="thruster1" type="cylinder" pos="-0.0335 0.375 -0.058"   size="0.15 0.0025"  quat = "0.9659 0.0 0.2588   0."     rgba="0.4 0.4 0.4 1" mass = ".0025"/>
+            <geom name="thruster2" type="cylinder" pos="-0.30825 0.2165 -0.058"  size="0.15 0.0025"  quat = "0.9659 0.2242 -0.1291 0."     rgba="0.4 0.4 0.4 1" mass = ".0025"/>
+            <geom name="thruster3" type="cylinder" pos="-0.30825 -0.2165  -0.058" size="0.15 0.0025"  quat = "0.9659 -0.2242 -0.1291 0."     rgba="0.4 0.4 0.4 1" mass = ".0025"/>
+            <geom name="thruster4" type="cylinder" pos="-0.0335 -0.375  -0.058"         size="0.15 0.0025"  quat = "0.9659 0.0 0.2588   0."     rgba="0.4 0.4 0.4 1" mass = ".0025"/>
+            <geom name="thruster5" type="cylinder" pos="0.34175 -0.1585  -0.058"  size="0.15 0.0025"  quat = "0.9659 0.2242 -0.1291 0."     rgba="0.4 0.4 0.4 1" mass = ".0025"/>
+
+
+            <joint name="main_joint" type="free"/>
+            <body name = "arm_base_link" pos = "0.088 0 0.0" quat = "1 0 0 0">
+                <geom name = "arm_base_link_geom" type="mesh" mesh="v2_arm_base" pos = "0 0 0" quat="1 0 0 0" mass="0.1"/>
+                <body name="manipulation_link1_pitch_link" pos="0.0 0.0 0.06475" quat="1 0 0 0">
+                    <geom name = "manipulation_link1_pitch_link_geom" type="mesh" mesh="v2_arm_link1_pitch" pos = "0 0 0" quat="0.707 0.707 0 0" mass = "0.1"/>
+                    <joint name="arm_link1_pitch_joint" type="hinge" limited= "false" pos="0 0 0" axis="0 1 0" range="-0.4 3.0" damping="0.0"/>
+                    <body name="manipulation_link2_pitch_link" pos="-0.3795 0.0 0.059" quat="0.707 0.707 0 0">
+                        <geom name = "manipulation_link2_pitch_link_geom" type="mesh" mesh="v2_arm_link2_pitch" mass="0.1"/>
+                        <joint name="arm_link2_pitch_joint" type="hinge" pos="0 0 0" axis="0 0 1" range="-10 10" damping="0.01"/>
+                        <body name = "manipulation_link3_pitch_link" pos = "0.4475 0 0" quat = "1 0.0 0. 0">
+                            <geom name = "manipulation_link3_pitch_link_geom" type="mesh" mesh="v2_arm_link3_pitch" mass="0.1"/>
+                            <joint name="arm_link3_pitch_joint" type="hinge" pos="0.0 0 0" axis="0 0 1" range="-10 10" damping="0.01"/>
+                            <body name= "manipulation_link4_roll_link" pos = "0.071 0 0" quat = "1 0 0 0">
+                                <geom name = "manipulation_link4_roll_link_geom" type="mesh" mesh="v2_arm_link4_roll" mass="0.01"/>
+                                <joint name="arm_link4_roll_joint" type="hinge" pos="0 0 0" axis="-1 0 0" range="-10 10" damping="0.01"/>
+
+                                <body name="ee" pos="0.01 0 0" quat="1.0 0.0 0 0">
+                                    <inertial pos="-0.00 -0.000 0.00" quat="1 0 0 0" mass="0.0001" diaginertia="0.0000 0.0000 0" />
+                                    <body name = "gripper_base_link" pos = "0.0 0 0" quat = "1 0 0 0">
+                                        <geom name = "gripper_base_link_geom" type="mesh" mesh="v2_arm_gripper" pos = "0 0 0" quat = "1 0 0 0" mass = "0.01"/>
+                                        <body name = "manipulation_lfinger_link" pos = "0.08 0.0 0" quat = "0.707 0.707 0.0 0.0">
+                                            <geom name = "manipulation_lfinger_link_geom" type="mesh" mesh="v2_gripper_long_fingertip" pos = "0 0 0" quat = "1 0 0 0" mass = "0.05"/>
+                                            <joint name="arm_lfinger_joint" type="slide" pos="0 0 0" axis="0 1 0" range="0.001 0.06" damping="0.01"/>
+                                        </body>
+                                        <body name = "manipulation_rfinger_link" pos = "0.08 0 0" quat = "0.707 -0.707 0 0">
+                                            <geom name = "manipulation_rfinger_link_geom" type="mesh" mesh="v2_gripper_long_fingertip" pos = "0 0 0" quat = "1 0 0 0" mass = "0.05"/>
+                                            <joint name="arm_rfinger_joint" type="slide" pos="0 0 0" axis="0 1 0" range="0.001 0.06" damping="0.01"/>
+                                        </body>
+                                    </body>
+
+                                    <body name = "obj" pos = "0.15 0 0" quat = "0.707 0 0.707 0">
+                                        <geom name = "obj_geom" type="cylinder" size="0.005 0.12" rgba="0.55294 0.1294 0.75294 1" mass="0.001"/>
+                                    </body>
+
+
+                                    <!-- add a box here -->
+                                    <body name= "ee_tool" pos = "0.01 0 0" quat = "1 0 0 0">
+                                        <inertial pos="-0.00 0.0 0.00" quat="1 0 0 0" mass="0.0001" diaginertia="0.0000 0.0000 0" />
+                                        <!-- <geom name = "ee_geom" type="box" size="0.02 0.02 0.02" rgba="0.55294 0.1294 0.75294 1" /> -->
+                                    </body>
+                                    <camera name="ee" mode="fixed" pos="0.05 0.05 0" axisangle="0 1 0 -1.57" fovy="70"/>
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+        </body>
+
+    </worldbody>
+    <actuator>
+        <motor name="fx" joint="main_joint" gear="1 0 0 0 0 0" />
+        <motor name="fy" joint="main_joint" gear="0 1 0 0 0 0" />
+        <motor name="fz" joint="main_joint" gear="0 0 1 0 0 0" />
+        <motor name="tx" joint="main_joint" gear="0 0 0 1 0 0" />
+        <motor name="ty" joint="main_joint" gear="0 0 0 0 1 0" />
+        <motor name="tz" joint="main_joint" gear="0 0 0 0 0 1" />
+
+        <motor name="manipulation_link1_pitch_motor" joint="arm_link1_pitch_joint" ctrlrange="-1 1"/>
+        <motor name="manipulation_link2_pitch_motor" joint="arm_link2_pitch_joint" ctrlrange="-1 1"/>
+        <motor name="manipulation_link3_pitch_motor" joint="arm_link3_pitch_joint" ctrlrange="-1 1"/>
+        <motor name="manipulation_link4_roll_motor" joint="arm_link4_roll_joint" ctrlrange="-1 1"/> 
+        <position name="manipulation_lfinger_motor" joint="arm_lfinger_joint" ctrlrange="0 0.06" kp="35" kv="0.5"/>
+        <position name="manipulation_rfinger_motor" joint="arm_rfinger_joint" ctrlrange="0 0.06" kp="35" kv="0.5"/>
+
+    </actuator>
+
+</mujoco>
