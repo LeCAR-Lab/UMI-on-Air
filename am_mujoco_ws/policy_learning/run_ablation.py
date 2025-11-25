@@ -369,9 +369,43 @@ def run_single_experiment(params):
     return (g, s, 1, last_duration)
 
 
+def auto_detect_checkpoint_dir(task_name):
+    """
+    Auto-detect checkpoint directory based on task name.
+    
+    Task naming format: EMBODIMENT_TASK (e.g., 'uam_cabinet', 'ur10e_peg')
+    Looks for checkpoints in: checkpoints/umi_{TASK}/
+    
+    Args:
+        task_name: Task name in format 'embodiment_task'
+    
+    Returns:
+        Path to checkpoint directory if found, None otherwise
+    """
+    # Extract task name (part after embodiment prefix)
+    parts = task_name.split('_', 1)
+    if len(parts) < 2:
+        return None
+    
+    task = parts[1]  # Get task name (cabinet, peg, pick, valve)
+    
+    # Get workspace root (2 levels up from policy_learning)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    workspace_root = os.path.dirname(os.path.dirname(script_dir))
+    
+    # Look for checkpoints/umi_{task}/ directory
+    checkpoint_dir = os.path.join(workspace_root, 'checkpoints', f'umi_{task}')
+    
+    if os.path.exists(checkpoint_dir):
+        print(f"✨ Auto-detected checkpoint directory: {checkpoint_dir}")
+        return checkpoint_dir
+    
+    return None
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--ckpt_dir', required=True, help='Directory containing checkpoint and assets')
+    parser.add_argument('--ckpt_dir', required=False, help='Checkpoint directory (optional - will auto-detect from task_name if not provided)')
     parser.add_argument('--task_name', default='uam_peg')
     parser.add_argument('--guidances', default='0.0,0.5,1.0,1.5',
                         help='Comma-separated list of guidance values')
@@ -389,6 +423,14 @@ def main():
     parser.add_argument('--output_dir', default='',
                         help='Output directory for ablation results (default: <ckpt_dir>/ablation_results)')
     args = parser.parse_args()
+    
+    # Auto-detect checkpoint directory if not provided
+    if args.ckpt_dir is None:
+        args.ckpt_dir = auto_detect_checkpoint_dir(args.task_name)
+        if args.ckpt_dir is None:
+            print(f"❌ Error: Could not auto-detect checkpoint directory for task '{args.task_name}'")
+            print(f"   Please provide --ckpt_dir explicitly or ensure checkpoints/umi_{{task}}/ exists")
+            sys.exit(1)
 
     # Determine sweep mode
     scale_mode = bool(args.scales.strip())

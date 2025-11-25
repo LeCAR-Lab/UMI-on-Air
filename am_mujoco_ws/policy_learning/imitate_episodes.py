@@ -120,6 +120,41 @@ def build_config(args: Dict[str, Any], task_config: Dict[str, Any]) -> Dict[str,
     }
 
 
+def auto_detect_checkpoint_dir(task_name: str) -> Optional[str]:
+    """
+    Auto-detect checkpoint directory based on task name.
+    
+    Task naming format: EMBODIMENT_TASK (e.g., 'uam_cabinet', 'ur10e_peg')
+    Looks for checkpoints in: checkpoints/umi_{TASK}/
+    
+    Args:
+        task_name: Task name in format 'embodiment_task'
+    
+    Returns:
+        Path to checkpoint directory if found, None otherwise
+    """
+    # Extract task name (part after embodiment prefix)
+    # E.g., 'uam_cabinet' -> 'cabinet', 'ur10e_peg' -> 'peg'
+    parts = task_name.split('_', 1)
+    if len(parts) < 2:
+        return None
+    
+    task = parts[1]  # Get task name (cabinet, peg, pick, valve)
+    
+    # Get workspace root (2 levels up from policy_learning)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    workspace_root = os.path.dirname(os.path.dirname(script_dir))
+    
+    # Look for checkpoints/umi_{task}/ directory
+    checkpoint_dir = os.path.join(workspace_root, 'checkpoints', f'umi_{task}')
+    
+    if os.path.exists(checkpoint_dir):
+        print(f"✨ Auto-detected checkpoint directory: {checkpoint_dir}")
+        return checkpoint_dir
+    
+    return None
+
+
 def resolve_checkpoint_path(ckpt_dir: str, provided_path: Optional[str]) -> Optional[str]:
     """Resolve checkpoint path with auto-detection."""
     if provided_path is not None:
@@ -995,7 +1030,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--onscreen_render', action='store_true')
     parser.add_argument('--use_3d_viewer', action='store_true', help='Use 3D MuJoCo viewer instead of OpenCV preview')
-    parser.add_argument('--ckpt_dir', action='store', type=str, help='ckpt_dir', required=True)
+    parser.add_argument('--ckpt_dir', action='store', type=str, help='Checkpoint directory (optional - will auto-detect from task_name if not provided)', required=False)
     parser.add_argument('--task_name', action='store', type=str, help='task_name', required=True)
     parser.add_argument('--load_ckpt_file_path', action='store', type=str, help='load_ckpt_file_path', required=False)
     parser.add_argument('--num_rollouts', action='store', type=int, default=10, help='Number of evaluation rollouts to execute')
@@ -1007,6 +1042,14 @@ if __name__ == '__main__':
     parser.add_argument('--acados_build_dir', default=None, type=str, help='Unique directory for ACADOS build files')
     parser.add_argument('--scale', action='store', type=float, default=0.0, help='Alpha-based scaling factor for guided diffusion throughout the process (0=disabled)')
     args = vars(parser.parse_args())
+    
+    # Auto-detect checkpoint directory if not provided
+    if args['ckpt_dir'] is None:
+        args['ckpt_dir'] = auto_detect_checkpoint_dir(args['task_name'])
+        if args['ckpt_dir'] is None:
+            print(f"❌ Error: Could not auto-detect checkpoint directory for task '{args['task_name']}'")
+            print(f"   Please provide --ckpt_dir explicitly or ensure checkpoints/umi_{{task}}/ exists")
+            sys.exit(1)
     
     args['load_ckpt_file_path'] = resolve_checkpoint_path(
         args['ckpt_dir'], 

@@ -40,4 +40,5 @@ am_mujoco_ws/**/evaluation_results/
 data/
 am_mujoco_ws/data/
 
-
+checkpoints/
+**/checkpoints/

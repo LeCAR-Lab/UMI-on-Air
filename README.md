@@ -66,6 +66,27 @@ cd ../../../../../..
 source am_mujoco_ws/am_trajectory_controller/setup_ee_mpc.sh
 ```
 
+### Pre-trained Models
+
+We provide pre-trained diffusion policy checkpoints trained on UMI demonstration data collected via motion capture for all four tasks (cabinet, peg, pick, valve). These policies can be directly evaluated on any embodiment using the `imitate_episodes.py` script with EADP guidance.
+
+#### Download Pre-trained Checkpoints
+
+```bash
+# Download all pre-trained models
+wget <DOWNLOAD_LINK_HERE>
+tar -xzf pretrained_models.tar.gz -C checkpoints/
+```
+
+This will extract the checkpoints to:
+```
+checkpoints/
+├── umi_cabinet/
+├── umi_peg/
+├── umi_pick/
+└── umi_valve/
+```
+
 ### Navigate to Working Directory
 
 All evaluation and data collection scripts are in `am_mujoco_ws/policy_learning/`:
@@ -190,39 +211,20 @@ python ../universal_manipulation_interface/train.py \
 
 The `imitate_episodes.py` script evaluates trained UMI policies in simulation. It supports standard diffusion policies and Embodiment-Aware Diffusion Policy (EADP) with MPC guidance.
 
-## Pre-trained Models
-
-We provide pre-trained diffusion policy checkpoints trained on UMI demonstration data collected via motion capture for all four tasks (cabinet, peg, pick, valve). These policies can be directly evaluated on any embodiment using the `imitate_episodes.py` script with EADP guidance.
-
-### Download Pre-trained Checkpoints
-
-```bash
-# Download all pre-trained models
-wget <DOWNLOAD_LINK_HERE>
-tar -xzf pretrained_models.tar.gz -C data/
-```
-
-This will extract the checkpoints to:
-```
-checkpoints/
-├── umi_cabinet/
-├── umi_peg/
-├── umi_pick/
-└── umi_valve/
-```
-
 ### Basic Usage
 
 ```bash
 python imitate_episodes.py \
-    --ckpt_dir <path_to_checkpoint_folder> \
     --task_name EMBODIMENT_TASK \
+    [--ckpt_dir <path_to_checkpoint_folder>] \
     --output_dir <results_folder> \
     --num_rollouts <number_of_trials> \
     [--guidance <guidance_strength>] \
     [--use_3d_viewer | --onscreen_render] \
     [--disturb]
 ```
+
+**Note:** The `--ckpt_dir` argument is optional. If omitted, it will auto-detect based on task name (e.g., `uam_cabinet` → `checkpoints/umi_cabinet/`). This works seamlessly with the pre-trained models downloaded during installation.
 
 ### Guided Diffusion (EADP)
 
@@ -261,13 +263,15 @@ The `run_ablation.py` script runs parallel ablation sweeps over guidance paramet
 
 ```bash
 python run_ablation.py \
-    --ckpt_dir /path/to/checkpoint \
     --task_name EMBODIMENT_TASK \
+    [--ckpt_dir /path/to/checkpoint] \
     --guidances 0.0,0.5,1.0,1.5 \
     --num_rollouts 30 \
     --max_workers 4 \
     [--output_dir /custom/output/path]
 ```
+
+**Note:** The `--ckpt_dir` argument is optional and will auto-detect based on task name if not provided.
 
 By default, this creates `<ckpt_dir>/ablation_results/` with one subfolder per guidance value. Use `--output_dir` to specify a custom output location. The script:
 - Runs experiments in parallel with automatic retry on failure
