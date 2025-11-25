@@ -29,6 +29,7 @@ dist/
 # ACADOS-generated artefacts
 am_mujoco_ws/policy_learning/acados_ocp.json
 am_mujoco_ws/**/c_generated_code/
+am_mujoco_ws/am_trajectory_controller/acados/
 
 # Simulation and evaluation outputs
 am_mujoco_ws/**/ablation_results/
