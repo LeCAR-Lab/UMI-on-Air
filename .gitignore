@@ -42,3 +42,5 @@ am_mujoco_ws/data/
 
 checkpoints/
 **/checkpoints/
+results/
+**/results/

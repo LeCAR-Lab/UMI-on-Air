@@ -116,7 +116,8 @@ def build_config(args: Dict[str, Any], task_config: Dict[str, Any]) -> Dict[str,
         'guided_steps': args['guided_steps'],
         'log_diffusion': args['log_diffusion'],
         'acados_build_dir': args['acados_build_dir'],
-        'scale': args['scale']
+        'scale': args['scale'],
+        'resume': args['resume']
     }
 
 
@@ -153,6 +154,24 @@ def auto_detect_checkpoint_dir(task_name: str) -> Optional[str]:
         return checkpoint_dir
     
     return None
+
+
+def get_timestamp() -> str:
+    """Get current timestamp in YYYY-MM-DD_HH-MM-SS format"""
+    from datetime import datetime
+    return datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+
+def find_latest_timestamped_dir(base_path: str) -> Optional[str]:
+    """Find the most recent timestamped directory"""
+    if not os.path.exists(base_path):
+        return None
+    dirs = [d for d in os.listdir(base_path) 
+            if os.path.isdir(os.path.join(base_path, d))]
+    if not dirs:
+        return None
+    dirs.sort(reverse=True)
+    return os.path.join(base_path, dirs[0])
 
 
 def resolve_checkpoint_path(ckpt_dir: str, provided_path: Optional[str]) -> Optional[str]:
@@ -474,9 +493,27 @@ def eval_bc(config, ckpt_name, save_episode=True):
     num_rollouts = config.get('num_rollouts', 10)
 
     # Directory for saving rollout artefacts (videos, plots, results)
+    resume_mode = config.get('resume', False)
     output_dir = config.get('output_dir', None)
+    
     if output_dir is None:
-        output_dir = ckpt_dir  # default to ckpt_dir if not provided
+        # Get workspace root (2 levels up from policy_learning)
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        workspace_root = os.path.dirname(os.path.dirname(script_dir))
+        task_base = os.path.join(workspace_root, 'results', 'eval', task_name)
+        
+        if resume_mode:
+            # Auto-find most recent run
+            output_dir = find_latest_timestamped_dir(task_base)
+            if output_dir is None:
+                print(f"❌ Error: --resume specified but no previous runs found in {task_base}")
+                sys.exit(1)
+            print(f"📂 Resuming from: {output_dir}")
+        else:
+            # Create new timestamped directory
+            timestamp = get_timestamp()
+            output_dir = os.path.join(task_base, timestamp)
+    
     os.makedirs(output_dir, exist_ok=True)
 
     # Initialize experiment summary tracker
@@ -511,28 +548,34 @@ def eval_bc(config, ckpt_name, save_episode=True):
 
     # Determine next episode index based on existing episodes that are already present on disk.
     # This lets us resume an interrupted run and continue numbering without overwriting.
-    existing_episode_dirs = [d for d in os.listdir(output_dir) if d.startswith('episode_')]
-    existing_ids = []
-    for d in existing_episode_dirs:
-        try:
-            existing_ids.append(int(d.split('_')[1]))
-        except (IndexError, ValueError):
-            continue  # Skip malformed names
-    
-    # Count total existing episodes
-    total_existing_episodes = len(existing_ids)
-    next_episode_id = max(existing_ids) + 1 if existing_ids else 0
-    
-    # Check if we already have enough episodes
-    if total_existing_episodes >= num_rollouts:
-        print(f"✅ Already have {total_existing_episodes} episodes (target: {num_rollouts}). No additional episodes needed.")
-        success_rate = 0.0  # Will be calculated from existing episodes if needed
-        avg_return = 0.0    # Will be calculated from existing episodes if needed
-        return success_rate, avg_return
-    
-    # Calculate how many more episodes we actually need to reach the target
-    episodes_needed = num_rollouts - total_existing_episodes
-    print(f"📊 Found {total_existing_episodes} existing episodes, need {episodes_needed} more to reach target of {num_rollouts}")
+    if resume_mode:
+        existing_episode_dirs = [d for d in os.listdir(output_dir) if d.startswith('episode_')]
+        existing_ids = []
+        for d in existing_episode_dirs:
+            try:
+                existing_ids.append(int(d.split('_')[1]))
+            except (IndexError, ValueError):
+                continue  # Skip malformed names
+        
+        # Count total existing episodes
+        total_existing_episodes = len(existing_ids)
+        next_episode_id = max(existing_ids) + 1 if existing_ids else 0
+        
+        # Check if we already have enough episodes
+        if total_existing_episodes >= num_rollouts:
+            print(f"✅ Already have {total_existing_episodes} episodes (target: {num_rollouts}). No additional episodes needed.")
+            success_rate = 0.0  # Will be calculated from existing episodes if needed
+            avg_return = 0.0    # Will be calculated from existing episodes if needed
+            return success_rate, avg_return
+        
+        # Calculate how many more episodes we actually need to reach the target
+        episodes_needed = num_rollouts - total_existing_episodes
+        print(f"📊 Found {total_existing_episodes} existing episodes, need {episodes_needed} more to reach target of {num_rollouts}")
+    else:
+        # Fresh start
+        total_existing_episodes = 0
+        next_episode_id = 0
+        episodes_needed = num_rollouts
 
     # Track how many successfully recorded episodes we have completed in this session.
     completed_episodes = 0
@@ -1041,6 +1084,7 @@ if __name__ == '__main__':
     parser.add_argument('--log_diffusion', action='store_true', help='Enable logging & plotting of diffusion trajectories/costs (disabled by default)')
     parser.add_argument('--acados_build_dir', default=None, type=str, help='Unique directory for ACADOS build files')
     parser.add_argument('--scale', action='store', type=float, default=0.0, help='Alpha-based scaling factor for guided diffusion throughout the process (0=disabled)')
+    parser.add_argument('--resume', action='store_true', help='Resume from most recent run (auto-finds latest timestamp)')
     args = vars(parser.parse_args())
     
     # Auto-detect checkpoint directory if not provided

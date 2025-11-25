@@ -39,6 +39,24 @@ import math
 # Global variable to hold the executor for signal handling
 current_executor = None
 
+def get_timestamp():
+    """Get current timestamp in YYYY-MM-DD_HH-MM-SS format"""
+    from datetime import datetime
+    return datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+
+def find_latest_timestamped_dir(base_path):
+    """Find the most recent timestamped directory"""
+    if not os.path.exists(base_path):
+        return None
+    dirs = [d for d in os.listdir(base_path) 
+            if os.path.isdir(os.path.join(base_path, d))]
+    if not dirs:
+        return None
+    dirs.sort(reverse=True)
+    return os.path.join(base_path, dirs[0])
+
+
 def signal_handler(signum, frame):
     """Handle Ctrl+C by immediately terminating all workers and exiting"""
     print("\n🛑 Ctrl+C detected! Terminating all workers immediately...", file=sys.stderr)
@@ -263,9 +281,9 @@ def run_single_experiment(params):
     If the experiment fails, its output directory is deleted and the run is
     repeated up to `max_retries` additional times.
     """
-    g, s, ckpt_dir, task_name, num_rollouts, extra_args, script_dir, max_retries, scale_mode, param_name = params
+    g, s, ckpt_dir, task_name, num_rollouts, extra_args, script_dir, max_retries, scale_mode, param_name, experiments_root = params
 
-    out_dir_base = os.path.join(ckpt_dir, 'ablation_results', f'{param_name}{g}_s{s}')
+    out_dir_base = os.path.join(experiments_root, f'{param_name}{g}_s{s}')
 
     attempt = 0
     last_duration = 0.0
@@ -422,6 +440,8 @@ def main():
                         help='Number of times to retry a failed experiment (each retry starts from a clean directory)')
     parser.add_argument('--output_dir', default='',
                         help='Output directory for ablation results (default: <ckpt_dir>/ablation_results)')
+    parser.add_argument('--resume', action='store_true',
+                        help='Resume most recent sweep (auto-finds latest, skips completed)')
     args = parser.parse_args()
     
     # Auto-detect checkpoint directory if not provided
@@ -446,11 +466,27 @@ def main():
     
     step_values = [int(x) for x in args.guided_steps.split(',') if x]
 
-    # Use custom output directory if provided, otherwise default to <ckpt_dir>/ablation_results
+    # Use custom output directory if provided, otherwise default to results/ablations/<task>/<timestamp>
     if args.output_dir:
         experiments_root = os.path.abspath(args.output_dir)
     else:
-        experiments_root = os.path.join(args.ckpt_dir, 'ablation_results')
+        # Get workspace root
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        workspace_root = os.path.dirname(os.path.dirname(script_dir))
+        ablation_base = os.path.join(workspace_root, 'results', 'ablations', args.task_name)
+        
+        if args.resume:
+            # Auto-find most recent sweep
+            experiments_root = find_latest_timestamped_dir(ablation_base)
+            if experiments_root is None:
+                print(f"❌ Error: --resume specified but no previous sweeps found in {ablation_base}")
+                sys.exit(1)
+            print(f"📂 Resuming from: {experiments_root}")
+        else:
+            # Create new timestamped directory
+            timestamp = get_timestamp()
+            experiments_root = os.path.join(ablation_base, timestamp)
+    
     os.makedirs(experiments_root, exist_ok=True)
     
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -462,17 +498,18 @@ def main():
     for g, s in itertools.product(param_values, step_values):
         out_dir = os.path.join(experiments_root, f'{param_name}{g}_s{s}')
         
-        # Skip combo if we already have results from a previous run
-        summary_file = os.path.join(out_dir, "experiment_summary.json")
-        done_flag = os.path.join(out_dir, "DONE.txt")
-        if os.path.isfile(summary_file) or os.path.isfile(done_flag):
-            skipped_experiments.append(f"{param_name}{g}_s{s}")
-            continue
+        # Skip combo if we already have results from a previous run (only when resuming)
+        if args.resume:
+            summary_file = os.path.join(out_dir, "experiment_summary.json")
+            done_flag = os.path.join(out_dir, "DONE.txt")
+            if os.path.isfile(summary_file) or os.path.isfile(done_flag):
+                skipped_experiments.append(f"{param_name}{g}_s{s}")
+                continue
         
         # Add to experiments to run
         experiment_params = (g, s, args.ckpt_dir, args.task_name, 
                            args.num_rollouts, args.extra_args, script_dir, args.max_retries, 
-                           scale_mode, param_name)
+                           scale_mode, param_name, experiments_root)
         experiments_to_run.append(experiment_params)
     
     if skipped_experiments:
