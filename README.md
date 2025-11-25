@@ -1,6 +1,10 @@
 
 # UMI-on-Air
 
+<p align="center">
+  <img src="assets/bench.gif" alt="UMI-on-Air Demo" width="800"/>
+</p>
+
 This repository contains the simulation benchmark, environments, and evaluation tooling for **UMI-on-Air: Embodiment-Aware Guidance for Embodiment-Agnostic Visuomotor Policies**. 
 
 For full details on the method and experimental results, see the [UMI-on-Air project website](https://umi-on-air.github.io/) and the [UMI-on-Air paper](https://umi-on-air.github.io/static/umi-on-air.pdf).
@@ -129,6 +133,8 @@ python record_episodes_keyboard.py \
     --onscreen_render
 ```
 
+Episodes are saved as HDF5 files in `data/bc/<EMBODIMENT_TASK>/demonstration/` (e.g., `data/bc/uam_cabinet/demonstration/episode_0.hdf5`). The dataset directory can be configured in `constants.py`.
+
 ### Visualization Options
 
 - **`--onscreen_render`**: Ego-centric camera view with keyboard controls for teleoperation
@@ -171,6 +177,8 @@ The policy will be called every `query_frequency` timesteps (each timestep = 1/5
 
 **Example:** If `action_horizon = 8` and `obs_down_sample_steps = 4`, then `query_frequency = 32` (policy runs every 0.64 seconds).
 
+These parameters can be configured in the training config file at `am_mujoco_ws/universal_manipulation_interface/diffusion_policy/config/train_diffusion_unet_timm_umi_workspace.yaml`. Review and edit the config as needed before training.
+
 #### Single-GPU Training
 
 ```bash
@@ -181,6 +189,27 @@ python ../universal_manipulation_interface/train.py \
 ## Policy Evaluation
 
 The `imitate_episodes.py` script evaluates trained UMI policies in simulation. It supports standard diffusion policies and Embodiment-Aware Diffusion Policy (EADP) with MPC guidance.
+
+## Pre-trained Models
+
+We provide pre-trained diffusion policy checkpoints trained on UMI demonstration data collected via motion capture for all four tasks (cabinet, peg, pick, valve). These policies can be directly evaluated on any embodiment using the `imitate_episodes.py` script with EADP guidance.
+
+### Download Pre-trained Checkpoints
+
+```bash
+# Download all pre-trained models
+wget <DOWNLOAD_LINK_HERE>
+tar -xzf pretrained_models.tar.gz -C data/
+```
+
+This will extract the checkpoints to:
+```
+checkpoints/
+├── umi_cabinet/
+├── umi_peg/
+├── umi_pick/
+└── umi_valve/
+```
 
 ### Basic Usage
 
@@ -197,20 +226,9 @@ python imitate_episodes.py \
 
 ### Guided Diffusion (EADP)
 
-- **`--guidance`**: Scalar strength for MPC-based guidance (default: `0.0` for no guidance)
+- **`--guidance`**: Scalar strength for MPC-based guidance (default: `0.0` for no guidance, `1.5` for our tested guidance)
 
-**Example with guidance:**
-```bash
-python imitate_episodes.py \
-    --ckpt_dir /path/to/checkpoint \
-    --task_name uam_cabinet \
-    --output_dir ./results \
-    --num_rollouts 30 \
-    --guidance 1.0 \
-    --use_3d_viewer
-```
-
-### Keyboard Controls During Evaluation
+### Keyboard Controls During Evaluation (on window)
 
 - **`1`**: Discard current episode and retry
 - **`2`**: Save current episode as failed and move to next
@@ -247,10 +265,11 @@ python run_ablation.py \
     --task_name EMBODIMENT_TASK \
     --guidances 0.0,0.5,1.0,1.5 \
     --num_rollouts 30 \
-    --max_workers 4
+    --max_workers 4 \
+    [--output_dir /custom/output/path]
 ```
 
-This creates `ablation_results/` with one subfolder per guidance value. The script:
+By default, this creates `<ckpt_dir>/ablation_results/` with one subfolder per guidance value. Use `--output_dir` to specify a custom output location. The script:
 - Runs experiments in parallel with automatic retry on failure
 - Provides live progress monitoring with ETAs
 - Generates summary heatmaps showing success rate and episode duration
@@ -269,5 +288,4 @@ ablation_results/
 
 If you have any questions, feel free to reach out:
 
-- 📱 Text: (217) 298-6535
 - 📧 Email: hgupt3@illinois.edu
