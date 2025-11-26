@@ -33,7 +33,7 @@ SIM_TASK_CONFIGS = {
         **TASK_CONFIGS['peg'],
         'dataset_dir': DATA_DIR + '/uam_peg/demonstration/',
         'base_x_ub': 1.2,
-        'wind_range': (-10.0, 10.0),
+        'wind_range': (-12.0,12.0),
         'torque_range': (-0.0, 0.0),
     },
     'umi_peg': {

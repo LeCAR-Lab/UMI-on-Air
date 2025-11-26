@@ -996,6 +996,16 @@ def eval_bc(config, ckpt_name, save_episode=True):
         # Determine success once, use everywhere for consistency
         episode_success = (episode_highest_reward >= env_max_reward)
         
+        # Handle crashed episodes - only retry if NOT successful
+        # A successful episode that crashes still counts as success (no retry needed)
+        if episode_crashed and not episode_success:
+            print("🔄 Episode crashed – retrying the same index")
+            handle_episode_crash(episode_tracker)
+            continue
+        
+        if episode_success:
+            successful_episode_count += 1
+
         # Pass all reward-based metrics from main loop to ensure consistency
         episode_tracker.finalize_episode(
             env_max_reward, 
@@ -1018,14 +1028,6 @@ def eval_bc(config, ckpt_name, save_episode=True):
         episode_end_time = time.time()
         episode_duration = episode_end_time - episode_start_time
         episode_durations.append(episode_duration)
-        
-        if episode_success:
-            successful_episode_count += 1
-        
-        if episode_crashed:
-            print("🔄 Episode crashed – retrying the same index")
-            handle_episode_crash(episode_tracker)
-            continue
 
         completed_episodes += 1
         avg_episode_duration = np.mean(episode_durations) if episode_durations else 0.0
