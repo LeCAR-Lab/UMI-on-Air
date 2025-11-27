@@ -341,13 +341,14 @@ Run ablation sweep on UAM peg task with 4 guidance values in parallel:
 ```bash
 python run_ablation.py \
     --task_name uam_cabinet \
-    --guidances 0.0,1.5 \
+    --guidances 0.0,0.5,1.0,1.5 \
     --num_rollouts 30 \
+    --max_workers 4 \
     --disturb
 ```
 
 The script:
-- Runs experiments in parallel with automatic retry on failure
+- Runs experiments in parallel
 - Provides live progress monitoring with ETAs
 - Generates summary heatmaps showing success rate and episode duration
 
