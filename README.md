@@ -259,7 +259,7 @@ python imitate_episodes.py \
 
 ### Example
 
-Evaluate UAM on cabinet task with EADP guidance, disturbances, and 3D visualization:
+Evaluate UAM on cabinet task with EADP guidance, and 3D visualization:
 
 ```bash
 python imitate_episodes.py \
