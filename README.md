@@ -2,7 +2,8 @@
 # UMI-on-Air
 
 <p align="center">
-  <img src="assets/bench.gif" alt="UMI-on-Air Demo" width="800"/>
+  <img src="assets/bench.gif" alt="UMI-on-Air Demo" width="400"/>
+  <img src="assets/arkit.gif" alt="ARKit Teleoperation Demo" width="400"/>
 </p>
 
 This repository contains the simulation benchmark, environments, and evaluation tooling for **UMI-on-Air: Embodiment-Aware Guidance for Embodiment-Agnostic Visuomotor Policies**. 
@@ -188,6 +189,53 @@ Episodes are saved as HDF5 files in `data/bc/<EMBODIMENT_TASK>/demonstration/` (
 | `P` | Start recording |
 | `R` | Reset scene |
 | `ESC` | Exit |
+
+### ARKit Teleoperation (iPhone)
+
+You can also collect demonstrations using iPhone AR teleoperation via the [MujocoAR](https://github.com/omarrayyann/MujocoAR) library.
+
+#### Requirements
+
+1. **MujocoAR iOS App**: Download from the [App Store](https://apps.apple.com/ae/app/mujoco-ar/id6612039501)
+2. **Network**: iPhone and host must be on the same network (or use relay for restricted networks)
+
+#### Usage
+
+```bash
+python record_episodes_arkit.py \
+    --task_name EMBODIMENT_TASK \
+    [--onscreen_render | --use_3d_viewer] \
+    [--port 8888] \
+    [--scale 1.0]
+```
+
+#### Parameters
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `--task_name` | *required* | Task in format `EMBODIMENT_TASK` (e.g., `umi_cabinet`) |
+| `--onscreen_render` | disabled | Ego-centric camera view with status overlay |
+| `--use_3d_viewer` | disabled | Third-person 3D MuJoCo viewer |
+| `--port` | 8888 | WebSocket port for MujocoAR connection |
+| `--scale` | 1.0 | Position scaling factor for phone motion |
+
+#### Connecting Your iPhone
+
+1. Run the script - it will display the server IP and port
+2. Open the **MujocoAR** app on your iPhone
+3. Enter the server IP address and port (default: 8888)
+4. Tap **Connect**
+
+#### ARKit Controls
+
+| Control | Action |
+|---------|--------|
+| Phone motion | Move end-effector position/orientation |
+| Button (hold) | Close gripper |
+| Button (release) | Open gripper |
+| Toggle ON | Start recording |
+| Toggle OFF | Stop recording |
+| ESC (keyboard) | Exit program |
 
 ## Training Policies
 

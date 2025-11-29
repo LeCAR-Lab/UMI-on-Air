@@ -425,4 +425,5 @@ dependencies:
       - wandb==0.20.1
       - werkzeug==3.1.3
       - zarr==2.12.0
+      - mujoco-ar
 prefix: /home/harsh/miniconda3/envs/flyingumi
